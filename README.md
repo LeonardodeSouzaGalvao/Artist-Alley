@@ -1,6 +1,6 @@
 # Artist Alley
 
-Projeto interdisciplinar para a faculdade de Engenharia de Software (PUC Minas). O ArtisHub é uma plataforma distribuída que conecta artistas independentes a clientes interessados em artes personalizadas (comissões), utilizando uma arquitetura orientada a eventos.
+Projeto interdisciplinar para a faculdade de Engenharia de Software (PUC Minas). O ArtisAlley é uma plataforma distribuída que conecta artistas independentes a clientes interessados em artes personalizadas (comissões), utilizando uma arquitetura orientada a eventos.
 
 ---
 
