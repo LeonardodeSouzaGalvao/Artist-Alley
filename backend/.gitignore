@@ -1,0 +1,24 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/generated/prisma
+
+# Backend & Segurança
+**/node_modules/
+.env
+/backend/dist/
+
+# Banco de Dados
+/backend/prisma/generated/
+
+# Flutter (Essencial para não quebrar o projeto de outros)
+**/build/
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/.pub/
+
+# IDE
+.vscode/
+.idea/
