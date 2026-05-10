@@ -19,7 +19,7 @@ model User {
   password  String   
   role      Role     @default(CLIENT)
   
-  arts      Art[]
+  commissionSlots  CommissionSlot[]
   ordersAsClient  Order[] @relation("ClientOrders")
   ordersAsArtist  Order[] @relation("ArtistOrders")
 
@@ -32,13 +32,15 @@ enum Role {
   ARTIST
 }
 
-model Art {
+model CommissionSlots {
   id          String   @id @default(uuid())
   title       String
   description String?
   price       Decimal  @db.Decimal(10, 2)
   imageUrl    String  
-  
+  slots       Int
+  available   Boolean @default(true)
+
   artistId    String
   artist      User     @relation(fields: [artistId], references: [id])
   
@@ -49,7 +51,8 @@ model Art {
 model Order {
   id            String      @id @default(uuid())
   status        OrderStatus @default(PENDING)
-  description   String?     
+  description   String?
+  referenceImage  String?     
   
   clientId      String
   client        User        @relation("ClientOrders", fields: [clientId], references: [id])
