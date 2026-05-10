@@ -1,6 +1,10 @@
-import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
+import 'express-async-errors'; // Importe isso no topo (instale: npm install express-async-errors)
+import express, { Request, Response, NextFunction } from 'express';
+import { AppError } from './shared/errors/appError';
+
+
+const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -16,4 +20,20 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+});
+
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
+  console.error(err);
+
+  return res.status(500).json({
+    status: 'error',
+    message: 'Internal server error',
+  });
 });

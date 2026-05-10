@@ -9,7 +9,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -32,7 +31,7 @@ enum Role {
   ARTIST
 }
 
-model CommissionSlots {
+model CommissionSlot {
   id          String   @id @default(uuid())
   title       String
   description String?
@@ -49,22 +48,22 @@ model CommissionSlots {
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  status        OrderStatus @default(PENDING)
-  description   String?
+  id              String      @id @default(uuid())
+  status          OrderStatus @default(PENDING)
+  description     String?
   referenceImage  String?     
   
-  clientId      String
-  client        User        @relation("ClientOrders", fields: [clientId], references: [id])
+  clientId        String
+  client          User        @relation("ClientOrders", fields: [clientId], references: [id])
   
-  artistId      String
-  artist        User        @relation("ArtistOrders", fields: [artistId], references: [id])
+  artistId        String
+  artist          User        @relation("ArtistOrders", fields: [artistId], references: [id])
   
-  artId         String?     
-  art           Art?        @relation(fields: [artId], references: [id])
+  commissionSlotId String
+  commissionSlot   CommissionSlot @relation(fields: [commissionSlotId], references: [id])
 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 enum OrderStatus {

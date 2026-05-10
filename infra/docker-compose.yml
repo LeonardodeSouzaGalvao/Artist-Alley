@@ -1,16 +1,12 @@
-# Para rodar, basta entrar na pasta infra e usar o comando docker compose up -d. O painel do RabbitMQ ficará em http://localhost:15673
-
-version: '3.8'
-
 services:
   database:
     image: postgres:15
-    container_name: artisalley_db
+    container_name: artishub_db
     restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: artisalley
+      POSTGRES_DB: artishub
     ports:
       - "5433:5432"
     volumes:
@@ -18,11 +14,11 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: artisalley_mq
+    container_name: artishub_mq
     restart: always
     ports:
-      - "5673:5672"   
-      - "15673:15672" 
+      - "5673:5672"
+      - "15673:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
