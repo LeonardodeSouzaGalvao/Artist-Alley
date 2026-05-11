@@ -42,3 +42,11 @@ export async function verifyPassword(id: string, password: string) {
   if (!user) return false;
   return bcrypt.compare(password, user.password);
 }
+
+export async function turnintoArtist(id: string) {
+  const user = await prisma.user.update({
+    where: { id },
+    data: { role: 'ARTIST' },
+  });
+  return toUser(user);
+}

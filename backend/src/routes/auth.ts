@@ -33,4 +33,12 @@ router.post('/login', async (req: Request, res: Response) => {
   return res.json({ token });
 });
 
+router.post('/turnintoArtist', async (req: Request, res: Response) => {
+  const { userId } = req.body as { userId?: string };
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+  const user = await userService.turnintoArtist(userId);
+  if (!user) return res.status(404).json({ error: 'user not found' });
+  return res.json({ id: user.id, username: user.username, email: user.email, role: user.role });
+});
+
 export default router;
