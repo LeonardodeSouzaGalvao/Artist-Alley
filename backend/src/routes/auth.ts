@@ -6,21 +6,24 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
 
 router.post('/register', async (req: Request, res: Response) => {
-  const { username, password } = req.body as { username?: string; password?: string };
-  if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+  const { username, password, email, role } = req.body as { username?: string; password?: string; email?: string; role?: 'CLIENT' | 'ARTIST';};
+  if (!username || !password || !email || !role) return res.status(400).json({ error: 'username, email, password, and role required' });
 
-  const exists = await userService.findByUsername(username);
-  if (exists) return res.status(409).json({ error: 'username already taken' });
+  if (role !== 'CLIENT' && role !== 'ARTIST') {
+    return res.status(400).json({ error: 'Invalid role type' });
+  }
+  const exists = await userService.findByEmail(email);
+  if (exists) return res.status(409).json({ error: 'email already registered' });
 
-  const user = await userService.createUser(username, password);
-  return res.status(201).json({ id: user.id, username: user.username });
+  const user = await userService.createUser(username, password, email, role);
+  return res.status(201).json({ id: user.id, username: user.username, email: user.email, role: user.role });
 });
 
 router.post('/login', async (req: Request, res: Response) => {
-  const { username, password } = req.body as { username?: string; password?: string };
-  if (!username || !password) return res.status(400).json({ error: 'username and password required' });
+  const { email, password } = req.body as { email?: string; password?: string };
+  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
 
-  const user = await userService.findByUsername(username);
+  const user = await userService.findByEmail(email);
   if (!user) return res.status(401).json({ error: 'invalid credentials' });
 
   const valid = await userService.verifyPassword(user.id, password);

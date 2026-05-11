@@ -1,27 +1,44 @@
 import bcrypt from 'bcryptjs';
+import { Role, User as PrismaUser } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 
-export type User = { id: number; username: string; passwordHash: string };
+export type User = { id: string; username: string; email: string; role: Role };
 
-const users: User[] = [];
-let nextId = 1;
+function toUser(user: PrismaUser): User {
+  return {
+    id: user.id,
+    username: user.name,
+    email: user.email,
+    role: user.role,
+  };
+}
 
-export async function createUser(username: string, password: string) {
+export async function createUser(username: string, password: string, email: string, role: Role) {
   const passwordHash = await bcrypt.hash(password, 10);
-  const user: User = { id: nextId++, username, passwordHash };
-  users.push(user);
-  return { id: user.id, username: user.username };
+  const user = await prisma.user.create({
+    data: {
+      name: username,
+      email,
+      password: passwordHash,
+      role,
+    },
+  });
+
+  return toUser(user);
 }
 
-export async function findByUsername(username: string) {
-  return users.find(u => u.username === username) || null;
+export async function findByEmail(email: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  return user ? toUser(user) : null;
 }
 
-export async function findById(id: number) {
-  return users.find(u => u.id === id) || null;
+export async function findById(id: string) {
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? toUser(user) : null;
 }
 
-export async function verifyPassword(id: number, password: string) {
-  const user = await findById(id);
+export async function verifyPassword(id: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return false;
-  return bcrypt.compare(password, user.passwordHash);
+  return bcrypt.compare(password, user.password);
 }
