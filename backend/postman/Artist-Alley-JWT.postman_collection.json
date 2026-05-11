@@ -1,0 +1,444 @@
+{
+	"info": {
+		"_postman_id": "4f7f0a63-3e4a-4b7d-9d63-artist-alley-jwt",
+		"name": "Artist Alley JWT",
+		"description": "Backend routes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "GET /",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "POST /auth/register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"CLIENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /auth/login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"secret123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GET /me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Commission Slots",
+			"item": [
+				{
+					"name": "POST /commission-slots/createCommissionSlot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Portrait Session\",\n  \"description\": \"Custom portrait commissions\",\n  \"price\": 120,\n  \"artistId\": \"artist-id-here\",\n  \"slots\": 3,\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/createCommissionSlot",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"createCommissionSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /commission-slots/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/{{commissionSlotId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"{{commissionSlotId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /commission-slots/artist/:artistId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/artist/{{artistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"artist",
+								"{{artistId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "POST /orders/createOrder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clientId\": \"client-id-here\",\n  \"artistId\": \"artist-id-here\",\n  \"commissionSlotId\": \"slot-id-here\",\n  \"description\": \"Custom character design\",\n  \"referenceImage\": \"https://example.com/reference.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/createOrder",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"createOrder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/client/:clientId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/client/{{clientId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"client",
+								"{{clientId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/artist/:artistId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/artist/{{artistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"artist",
+								"{{artistId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /orders/commissionSlot/:commissionSlotId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/commissionSlot/{{commissionSlotId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"commissionSlot",
+								"{{commissionSlotId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /orders/:id (Update Status)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /orders/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders/:id/accept (Artist Accepts)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"artistId\": \"{{artistId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/accept",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"accept"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /orders/:id/reject (Artist Rejects)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"artistId\": \"{{artistId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}/reject",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"orders",
+								"{{orderId}}",
+								"reject"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "commissionSlotId",
+			"value": ""
+		},
+		{
+			"key": "artistId",
+			"value": ""
+		},
+		{
+			"key": "clientId",
+			"value": ""
+		},
+		{
+			"key": "orderId",
+			"value": ""
+		}
+	]
+}
