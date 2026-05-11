@@ -118,6 +118,75 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Commission Slots",
+			"item": [
+				{
+					"name": "POST /commission-slots/createCommissionSlot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Portrait Session\",\n  \"description\": \"Custom portrait commissions\",\n  \"price\": 120,\n  \"artistId\": \"artist-id-here\",\n  \"slots\": 3,\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/createCommissionSlot",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"createCommissionSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /commission-slots/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/{{commissionSlotId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"{{commissionSlotId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /commission-slots/artist/:artistId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/commission-slots/artist/{{artistId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"commission-slots",
+								"artist",
+								"{{artistId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [
@@ -127,6 +196,14 @@
 		},
 		{
 			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "commissionSlotId",
+			"value": ""
+		},
+		{
+			"key": "artistId",
 			"value": ""
 		}
 	]
