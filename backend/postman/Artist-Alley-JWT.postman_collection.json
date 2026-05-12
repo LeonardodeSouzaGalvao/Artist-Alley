@@ -56,7 +56,20 @@
 							]
 						}
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('register returned id', () => { pm.expect(json.id).to.exist; });",
+									"if (json.role === 'CLIENT') { pm.environment.set('clientId', json.id); } else if (json.role === 'ARTIST') { pm.environment.set('artistId', json.id); }"
+								]
+							}
+						}
+					]
 				},
 				{
 					"name": "POST /auth/login",
@@ -83,7 +96,20 @@
 							]
 						}
 					},
-					"response": []
+						"response": [],
+						"event": [
+							{
+								"listen": "test",
+								"script": {
+									"type": "text/javascript",
+									"exec": [
+										"const json = pm.response.json();",
+										"pm.test('login returned token', () => { pm.expect(json.token).to.exist; });",
+										"pm.environment.set('token', json.token);"
+									]
+								}
+							}
+						]
 				}
 			]
 		},
@@ -134,7 +160,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"title\": \"Portrait Session\",\n  \"description\": \"Custom portrait commissions\",\n  \"price\": 120,\n  \"artistId\": \"artist-id-here\",\n  \"slots\": 3,\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
+							"raw": "{\n  \"title\": \"Portrait Session\",\n  \"description\": \"Custom portrait commissions\",\n  \"price\": 120,\n  \"artistId\": \"{{artistId}}\",\n  \"slots\": 3,\n  \"imageUrl\": \"https://example.com/image.jpg\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/commission-slots/createCommissionSlot",
@@ -147,7 +173,20 @@
 							]
 						}
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('createCommissionSlot returned id', () => { pm.expect(json.id).to.exist; });",
+									"pm.environment.set('commissionSlotId', json.id);"
+								]
+							}
+						}
+					]
 				},
 				{
 					"name": "GET /commission-slots/:id",
@@ -203,7 +242,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"clientId\": \"client-id-here\",\n  \"artistId\": \"artist-id-here\",\n  \"commissionSlotId\": \"slot-id-here\",\n  \"description\": \"Custom character design\",\n  \"referenceImage\": \"https://example.com/reference.jpg\"\n}"
+							"raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"artistId\": \"{{artistId}}\",\n  \"commissionSlotId\": \"{{commissionSlotId}}\",\n  \"description\": \"Custom character design\",\n  \"referenceImage\": \"https://example.com/reference.jpg\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/orders/createOrder",
@@ -216,7 +255,23 @@
 							]
 						}
 					},
-					"response": []
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"pm.test('createOrder returned id', () => { pm.expect(json.id).to.exist; });",
+									"pm.environment.set('orderId', json.id);",
+									"if (json.clientId) { pm.environment.set('clientId', json.clientId); }",
+									"if (json.artistId) { pm.environment.set('artistId', json.artistId); }",
+									"if (json.commissionSlotId) { pm.environment.set('commissionSlotId', json.commissionSlotId); }"
+								]
+							}
+						}
+					]
 				},
 				{
 					"name": "GET /orders/:id",
@@ -426,19 +481,19 @@
 		},
 		{
 			"key": "commissionSlotId",
-			"value": ""
+			"value": "e5344ce4-875e-40b4-8ae0-929645fe8499"
 		},
 		{
 			"key": "artistId",
-			"value": ""
+			"value": "2364c566-07db-457f-98a3-94429affd6eb"
 		},
 		{
 			"key": "clientId",
-			"value": ""
+			"value": "0c3a23e7-610f-4ff1-995e-ec0775f4e170"
 		},
 		{
 			"key": "orderId",
-			"value": ""
+			"value": "5d936b5f-1028-4945-868e-65f1bfe1edf5"
 		}
 	]
 }
