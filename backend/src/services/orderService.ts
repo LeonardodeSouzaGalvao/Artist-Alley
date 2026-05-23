@@ -55,6 +55,13 @@ export async function createOrder(
   const orderData = toOrder(order);
   await eventService.publishOrderCreated(orderData);
 
+  const queueOrders = await prisma.order.findMany({
+    where: { commissionSlotId },
+    orderBy: { createdAt: 'asc' },
+  });
+  const queuePosition = queueOrders.findIndex((queueOrder) => queueOrder.id === orderData.id) + 1;
+  await eventService.publishCommissionOrderQueued(orderData, queuePosition, queueOrders.length);
+
   return orderData;
 }
 
@@ -84,14 +91,23 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
     throw new Error('Order not found');
   }
 
-  const orderData = toOrder(order);
-  
-  await eventService.publishOrderStatusChanged(id, order.artistId, status);
-
-  return await prisma.order.update({
+  const updatedOrder = await prisma.order.update({
     where: { id },
     data: { status },
   });
+
+  await eventService.publishOrderStatusChanged(id, order.artistId, status);
+
+  return updatedOrder;
+}
+
+export async function findQueueByCommissionSlotId(commissionSlotId: string) {
+  const orders = await prisma.order.findMany({
+    where: { commissionSlotId },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return orders.map(toOrder);
 }
 
 export async function deleteOrder(id: string) {

@@ -31,8 +31,21 @@ export type OrderStatusChangedEvent = {
   changedAt: Date;
 };
 
+export type CommissionOrderQueuedEvent = {
+  type: 'COMMISSION_ORDER_QUEUED';
+  orderId: string;
+  commissionSlotId: string;
+  clientId: string;
+  artistId: string;
+  queuePosition: number;
+  totalOrders: number;
+  createdAt: Date;
+};
+
 export type OrderEvent = 
   | OrderCreatedEvent 
   | OrderAcceptedEvent 
   | OrderRejectedEvent 
   | OrderStatusChangedEvent;
+
+export type CommissionEvent = CommissionOrderQueuedEvent;

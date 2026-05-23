@@ -1,4 +1,4 @@
-import { publishEvent } from '../lib/rabbitmq';
+import { publishEvent, publishCommissionEvent } from '../lib/rabbitmq';
 import { Order } from './orderService';
 
 export async function publishOrderCreated(order: Order) {
@@ -35,5 +35,17 @@ export async function publishOrderStatusChanged(orderId: string, artistId: strin
     artistId,
     status,
     changedAt: new Date(),
+  });
+}
+
+export async function publishCommissionOrderQueued(order: Order, queuePosition: number, totalOrders: number) {
+  await publishCommissionEvent('COMMISSION_ORDER_QUEUED', {
+    orderId: order.id,
+    commissionSlotId: order.commissionSlotId,
+    clientId: order.clientId,
+    artistId: order.artistId,
+    queuePosition,
+    totalOrders,
+    createdAt: order.createdAt,
   });
 }

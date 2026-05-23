@@ -103,6 +103,17 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 
   if (!status || !['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'WAITING_PAYMENT', 'REVISED', 'FINISHED', 'CANCELLED'].includes(status)) {
+
+  router.get('/commissionSlot/:commissionSlotId/queue', async (req: Request, res: Response) => {
+    const { commissionSlotId } = req.params;
+
+    if (typeof commissionSlotId !== 'string' || !commissionSlotId) {
+      return res.status(400).json({ error: 'commissionSlotId required' });
+    }
+
+    const queue = await OrderService.findQueueByCommissionSlotId(commissionSlotId);
+    return res.json(queue);
+  });
     return res.status(400).json({ error: 'valid status required' });
   }
 
