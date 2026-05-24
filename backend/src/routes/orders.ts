@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OrderStatus } from '@prisma/client';
 import * as OrderService from '../services/orderService';
-import * as eventService from '../services/eventService';
 import * as commissionSlotService from '../services/commissionSlotService';
 import * as userService from '../services/userService';
 
@@ -94,6 +93,17 @@ router.get('/commissionSlot/:commissionSlotId', async (req: Request, res: Respon
   return res.json(orders);
 });
 
+router.get('/commissionSlot/:commissionSlotId/queue', async (req: Request, res: Response) => {
+  const { commissionSlotId } = req.params;
+
+  if (typeof commissionSlotId !== 'string' || !commissionSlotId) {
+    return res.status(400).json({ error: 'commissionSlotId required' });
+  }
+
+  const queue = await OrderService.findCommissionQueueProjectionByCommissionSlotId(commissionSlotId);
+  return res.json(queue);
+});
+
 router.put('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body as { status?: string };
@@ -103,17 +113,6 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 
   if (!status || !['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'WAITING_PAYMENT', 'REVISED', 'FINISHED', 'CANCELLED'].includes(status)) {
-
-  router.get('/commissionSlot/:commissionSlotId/queue', async (req: Request, res: Response) => {
-    const { commissionSlotId } = req.params;
-
-    if (typeof commissionSlotId !== 'string' || !commissionSlotId) {
-      return res.status(400).json({ error: 'commissionSlotId required' });
-    }
-
-    const queue = await OrderService.findQueueByCommissionSlotId(commissionSlotId);
-    return res.json(queue);
-  });
     return res.status(400).json({ error: 'valid status required' });
   }
 
@@ -168,7 +167,6 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
   }
 
   const updatedOrder = await OrderService.updateOrderStatus(id, 'ACCEPTED');
-  await eventService.publishOrderAccepted(id, artistId);
 
   return res.json(updatedOrder);
 });
@@ -199,7 +197,6 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
   }
 
   const updatedOrder = await OrderService.updateOrderStatus(id, 'CANCELLED');
-  await eventService.publishOrderRejected(id, artistId);
 
   return res.json(updatedOrder);
 });

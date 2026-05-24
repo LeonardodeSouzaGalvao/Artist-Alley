@@ -1,6 +1,5 @@
-import { getChannel } from './rabbitmq';
+import { getChannel, ORDERS_QUEUE, COMMISSION_QUEUE } from './rabbitmq';
 import { CommissionEvent, OrderEvent } from '../types/events';
-import { COMMISSION_QUEUE, ORDERS_QUEUE } from './rabbitmq';
 
 export async function startConsumers() {
   try {
@@ -38,7 +37,7 @@ export async function startConsumers() {
 
         channel.ack(msg);
       } catch (error) {
-        console.error('----- Erro ao processar evento:', error, " -----");
+        console.error('----- Erro ao processar evento:', error, ' -----');
         channel.nack(msg, false, true);
       }
     }, { noAck: false });

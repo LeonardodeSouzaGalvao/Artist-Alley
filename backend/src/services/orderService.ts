@@ -14,6 +14,11 @@ export type Order = {
   updatedAt: Date;
 };
 
+export type CommissionQueueItem = Order & {
+  queuePosition: number;
+  totalOrders: number;
+};
+
 function toOrder(order: PrismaOrder): Order {
   return {
     id: order.id,
@@ -57,7 +62,10 @@ export async function createOrder(
 
   const queueOrders = await prisma.order.findMany({
     where: { commissionSlotId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [
+      { createdAt: 'asc' },
+      { id: 'asc' },
+    ],
   });
   const queuePosition = queueOrders.findIndex((queueOrder) => queueOrder.id === orderData.id) + 1;
   await eventService.publishCommissionOrderQueued(orderData, queuePosition, queueOrders.length);
@@ -101,13 +109,20 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
   return updatedOrder;
 }
 
-export async function findQueueByCommissionSlotId(commissionSlotId: string) {
+export async function findCommissionQueueProjectionByCommissionSlotId(commissionSlotId: string) {
   const orders = await prisma.order.findMany({
     where: { commissionSlotId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [
+      { createdAt: 'asc' },
+      { id: 'asc' },
+    ],
   });
 
-  return orders.map(toOrder);
+  return orders.map((order, index, allOrders): CommissionQueueItem => ({
+    ...toOrder(order),
+    queuePosition: index + 1,
+    totalOrders: allOrders.length,
+  }));
 }
 
 export async function deleteOrder(id: string) {
