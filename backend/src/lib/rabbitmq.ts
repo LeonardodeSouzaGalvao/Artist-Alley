@@ -23,7 +23,7 @@ export async function connectRabbitMQ() {
     await channel.bindQueue(ORDERS_QUEUE, ORDERS_EXCHANGE, 'order.*');
     await channel.bindQueue(COMMISSION_QUEUE, COMMISSION_EXCHANGE, 'commission.*');
 
-    console.log('----- RabbitMQ conectado // http://localhost:15673 -----');
+    console.log('----- RabbitMQ conectado // https://jackal.rmq.cloudamqp.com/#/ -----');
     return { connection, channel };
   } catch (error) {
     console.error('----- Erro ao conectar ao RabbitMQ:', error, " -----");

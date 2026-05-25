@@ -10,6 +10,7 @@ Projeto interdisciplinar para a faculdade de Engenharia de Software (PUC Minas).
 
 *   **[Proposta de Domínio](./docs/proposta_dominio.pdf):** Descrição do problema, justificativa e perfis de usuário (Cliente e Artista).
 *   **[Diagrama de Arquitetura](./docs/diagrama_arquitetura.png):** Representação visual da comunicação entre Flutter, Node.js, RabbitMQ e PostgreSQL.
+*   **[Relatório de MOM](./docs/relatorio_mom.md):** Decisões de design, tabela de eventos e visão geral da comunicação assíncrona.
 *   **[Modelagem do Banco de Dados](./docs/modelagem_db.png):** Esquema das tabelas e relacionamentos via Prisma.
 
 ---
