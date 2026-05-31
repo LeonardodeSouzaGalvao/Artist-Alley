@@ -40,3 +40,6 @@ O consumidor é iniciado junto com o servidor e processa as mensagens recebidas 
 
 ## Evidência de Funcionamento
 ![Log de eventos recebidos no consumidor](./docs/TerminalComLogsMensageria.png)
+
+Vídeo de demonstração: 
+[https://youtu.be/WEJvkS9VOoM](https://youtu.be/WEJvkS9VOoM)
