@@ -7,6 +7,7 @@ class TelaHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var _fotoUrls;
     return Scaffold(
       backgroundColor: AppCores.corFundo,
       appBar: AppBar(
@@ -63,9 +64,9 @@ class TelaHome extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: CardArtista(
               nome: _nomesArtistas[i],
-              especialidade: _especialidades[i],
-              avaliacao: _avaliacoes[i],
-              totalTrabalhos: _totalTrabalhos[i],
+              descricao: _especialidades[i],
+              valor: _avaliacoes[i].toString(),
+              fotoUrl: _fotoUrls[i],
             ),
           )),
         ],

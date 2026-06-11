@@ -3,16 +3,16 @@ import '../core/app_cores.dart';
 
 class TelaDetalheArtista extends StatelessWidget {
   final String nome;
-  final String especialidade;
-  final double avaliacao;
-  final int totalTrabalhos;
+  final String descricao;
+  final String valor;
+  final String fotoUrl;
 
   const TelaDetalheArtista({
     super.key,
     required this.nome,
-    required this.especialidade,
-    required this.avaliacao,
-    required this.totalTrabalhos,
+    required this.descricao,
+    required this.valor,
+    required this.fotoUrl,
   });
 
   @override
@@ -40,13 +40,11 @@ class TelaDetalheArtista extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          // Cabeçalho do artista
           Container(
             color: AppCores.corSecundaria,
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
-                // Avatar
                 Container(
                   width: 72,
                   height: 72,
@@ -80,36 +78,8 @@ class TelaDetalheArtista extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        especialidade,
-                        style: const TextStyle(
-                          color: AppCores.corTextoSecundario,
-                          fontSize: 13,
-                        ),
-                      ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
-                          const SizedBox(width: 4),
-                          Text(
-                            avaliacao.toString(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppCores.corTexto,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '• $totalTrabalhos trabalhos',
-                            style: const TextStyle(
-                              color: AppCores.corTextoSecundario,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
+                      
                     ],
                   ),
                 ),
@@ -119,7 +89,6 @@ class TelaDetalheArtista extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Sobre
           Container(
             color: AppCores.corSecundaria,
             padding: const EdgeInsets.all(20),
@@ -127,103 +96,79 @@ class TelaDetalheArtista extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Sobre',
+                  'Commission aberta',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: AppCores.corTexto,
                   ),
                 ),
+                
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      height:
+                          160, 
+                      color: Colors.grey[200],
+                      child:
+                          fotoUrl
+                              .isNotEmpty
+                          ? Image.network(
+                              fotoUrl,
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    );
+                                  },
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                            )
+                          : const Center(
+                              child: Icon(
+                                Icons.image,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Artista digital apaixonado por criar mundos únicos e personagens memoráveis. '
-                  'Trabalho com projetos de ilustração há mais de 5 anos, atendendo clientes '
-                  'nacionais e internacionais com qualidade e pontualidade.',
+                  
+                  'Vaga para ilustração de personagem em estilo chibi. Orçamento de R\$ 500, prazo de 2 semanas.',
                   style: TextStyle(
                     color: AppCores.corTextoSecundario,
                     fontSize: 14,
                     height: 1.6,
                   ),
                 ),
+
+
               ],
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // Portfólio
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Portfólio',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppCores.corTexto,
-                  ),
-                ),
-                Text(
-                  'Ver todos ($totalTrabalhos)',
-                  style: const TextStyle(
-                    color: AppCores.corPrimaria,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Grid de portfólio
-          GridView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1,
-            ),
-            itemCount: 4,
-            itemBuilder: (_, i) => _CardPortfolio(indice: i),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Avaliações
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppCores.corSecundaria,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppCores.corBorda),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Avaliações recentes',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppCores.corTexto,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...List.generate(2, (i) => _ItemAvaliacao(indice: i)),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 80),
         ],
       ),
 
-      // Botão fixo no rodapé
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         decoration: const BoxDecoration(
@@ -232,155 +177,129 @@ class TelaDetalheArtista extends StatelessWidget {
         ),
         child: ElevatedButton(
           onPressed: () => _mostrarModalContratar(context),
-          child: const Text('Contratar artista'),
+          child: const Text('Pedir commission'),
         ),
       ),
     );
   }
 
   void _mostrarModalContratar(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppCores.corSecundaria,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: AppCores.corBorda,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Contratar $nome',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const TextField(
-              maxLines: 4,
-              decoration: InputDecoration(labelText: 'Descreva seu projeto'),
-            ),
-            const SizedBox(height: 12),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Orçamento (R\$)'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 12),
-            const TextField(
-              decoration: InputDecoration(labelText: 'Prazo estimado'),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Enviar proposta'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+  String? nomeArquivoSelecionado;
 
-class _CardPortfolio extends StatelessWidget {
-  final int indice;
-  const _CardPortfolio({required this.indice});
-
-  static const _cores = [
-    AppCores.corPrimariaClara,
-    Color(0xFFE0E7FF),
-    Color(0xFFDCFCE7),
-    Color(0xFFFEE2E2),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: _cores[indice % _cores.length],
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppCores.corBorda),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: AppCores.corTextoClaro,
-          size: 40,
-        ),
-      ),
-    );
-  }
-}
-
-class _ItemAvaliacao extends StatelessWidget {
-  final int indice;
-  const _ItemAvaliacao({required this.indice});
-
-  static const _nomes = ['Maria S.', 'João P.'];
-  static const _textos = [
-    'Trabalho incrível! Entregou antes do prazo e superou minhas expectativas.',
-    'Ótima comunicação e qualidade impecável. Recomendo muito!',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppCores.corSecundaria,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => StatefulBuilder(
+      builder: (BuildContext context, StateSetter setModalState) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: AppCores.corDestaque,
-                child: Text(
-                  _nomes[indice][0],
-                  style: const TextStyle(color: AppCores.corPrimaria, fontSize: 13),
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: AppCores.corBorda,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(height: 20),
               Text(
-                _nomes[indice],
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                'Contratar $nome',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              const Spacer(),
-              const Row(
-                children: [
-                  Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                  Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                  Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                  Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                  Icon(Icons.star_rounded, color: Colors.amber, size: 14),
-                ],
+              const SizedBox(height: 16),
+              const TextField(
+                maxLines: 4,
+                decoration: InputDecoration(labelText: 'Descreva seu projeto'),
+              ),
+              const SizedBox(height: 12),
+              const TextField(
+                decoration: InputDecoration(labelText: 'Orçamento (R\$)'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              const TextField(
+                decoration: InputDecoration(labelText: 'Prazo estimado'),
+              ),
+              const SizedBox(height: 16),
+              
+              const Text(
+                'Imagens de referência',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppCores.corTexto),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () {
+                  setModalState(() {
+                    nomeArquivoSelecionado = 'referencia_personagem.png';
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppCores.corFundo,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppCores.corBorda, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        nomeArquivoSelecionado != null ? Icons.image_rounded : Icons.file_upload_outlined,
+                        color: nomeArquivoSelecionado != null ? AppCores.corSucesso : AppCores.corTextoSecundario,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          nomeArquivoSelecionado ?? 'Selecione uma imagem ou moodboard...',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: nomeArquivoSelecionado != null ? AppCores.corTexto : AppCores.corTextoSecundario,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (nomeArquivoSelecionado != null)
+                        GestureDetector(
+                          onTap: () {
+                            setModalState(() {
+                              nomeArquivoSelecionado = null;
+                            });
+                          },
+                          child: const Icon(Icons.close, size: 18, color: Colors.redAccent),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Enviar proposta'),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            _textos[indice],
-            style: const TextStyle(
-              color: AppCores.corTextoSecundario,
-              fontSize: 13,
-              height: 1.4,
-            ),
-          ),
-          if (indice == 0)
-            const Divider(height: 20, color: AppCores.corDivisor),
-        ],
-      ),
-    );
-  }
+        );
+      },
+    ),
+  );
+}
+
 }

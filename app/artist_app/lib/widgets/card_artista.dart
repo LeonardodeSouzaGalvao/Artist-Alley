@@ -4,16 +4,16 @@ import '../screens/tela_detalhe_artista.dart';
 
 class CardArtista extends StatelessWidget {
   final String nome;
-  final String especialidade;
-  final double avaliacao;
-  final int totalTrabalhos;
+  final String descricao;
+  final String valor;
+  final String fotoUrl;
 
   const CardArtista({
     super.key,
     required this.nome,
-    required this.especialidade,
-    required this.avaliacao,
-    required this.totalTrabalhos,
+    required this.descricao,
+    required this.valor,
+    required this.fotoUrl,
   });
 
   @override
@@ -23,9 +23,9 @@ class CardArtista extends StatelessWidget {
         MaterialPageRoute(
           builder: (_) => TelaDetalheArtista(
             nome: nome,
-            especialidade: especialidade,
-            avaliacao: avaliacao,
-            totalTrabalhos: totalTrabalhos,
+            descricao: descricao,
+            valor: valor,
+            fotoUrl: fotoUrl,
           ),
         ),
       ),
@@ -41,7 +41,6 @@ class CardArtista extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Avatar
             Container(
               width: 54,
               height: 54,
@@ -64,7 +63,6 @@ class CardArtista extends StatelessWidget {
 
             const SizedBox(width: 14),
 
-            // Informações
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +77,7 @@ class CardArtista extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    especialidade,
+                    descricao,
                     style: const TextStyle(
                       color: AppCores.corTextoSecundario,
                       fontSize: 12,
@@ -93,7 +91,7 @@ class CardArtista extends StatelessWidget {
                       const Icon(Icons.star_rounded, color: Colors.amber, size: 15),
                       const SizedBox(width: 3),
                       Text(
-                        avaliacao.toString(),
+                        valor,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -102,7 +100,7 @@ class CardArtista extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '$totalTrabalhos trabalhos',
+                        'Valor: $valor',
                         style: const TextStyle(
                           color: AppCores.corTextoClaro,
                           fontSize: 12,
@@ -114,7 +112,6 @@ class CardArtista extends StatelessWidget {
               ),
             ),
 
-            // Seta
             const Icon(
               Icons.chevron_right,
               color: AppCores.corTextoClaro,

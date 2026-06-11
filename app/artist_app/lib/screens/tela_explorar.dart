@@ -1,3 +1,4 @@
+import 'package:artist_app/screens/tela_detalhe_artista.dart';
 import 'package:flutter/material.dart';
 import '../core/app_cores.dart';
 
@@ -59,7 +60,6 @@ class _TelaExplorarState extends State<TelaExplorar> {
       ),
       body: Column(
         children: [
-          // Barra de busca
           Container(
             color: AppCores.corSecundaria,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -74,7 +74,6 @@ class _TelaExplorarState extends State<TelaExplorar> {
           ),
 
 
-          // Lista de vagas
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
@@ -96,6 +95,8 @@ class _CardVaga extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String? imageUrl = vaga['imagemUrl'] as String?;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -107,8 +108,41 @@ class _CardVaga extends StatelessWidget {
         ],
       ),
       child: Column(
+        
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          
+          ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: double.infinity,
+            height: 150,
+            color: Colors.grey[200],
+            child: imageUrl != null && imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      
+                      return const Center(
+                        child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                      );
+                    },
+                  )
+                : const Center(
+                    child: Icon(Icons.image, size: 40, color: Colors.grey),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+
           Text(
             vaga['titulo'] as String,
             style: const TextStyle(
@@ -144,11 +178,24 @@ class _CardVaga extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
+          
+
           SizedBox(
             width: double.infinity,
             height: 40,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TelaDetalheArtista(
+                      nome: vaga['titulo'] as String,
+                      descricao: vaga['descricao'] as String,
+                      valor: vaga['orcamento'] as String,
+                      fotoUrl: vaga['imagemUrl'] as String? ?? '',
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 textStyle: const TextStyle(fontSize: 14),
               ),
