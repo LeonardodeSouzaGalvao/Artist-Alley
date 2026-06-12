@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../core/app_cores.dart';
-import 'tela_principal.dart';
+import 'package:http/http.dart' as http;
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -11,19 +13,21 @@ class TelaCadastro extends StatefulWidget {
 
 class _TelaCadastroState extends State<TelaCadastro> {
   final _formKey = GlobalKey<FormState>();
+  final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
-
+  final String _apiUrl = 'http://10.0.2.2:3000';
+  
   bool _senhaVisivel = false;
   bool _confirmarSenhaVisivel = false;
   bool _carregando = false;
 
-  // null = nenhum selecionado, 'artista' ou 'cliente'
   String? _tipoUsuario;
 
   @override
   void dispose() {
+    _nomeController.dispose();
     _emailController.dispose();
     _senhaController.dispose();
     _confirmarSenhaController.dispose();
@@ -31,7 +35,75 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   Future<void> _cadastrar() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _carregando = true);
     
+    final tipoUsuario = _tipoUsuario;
+    if (tipoUsuario == null) {
+      _mostrarAlerta('Selecione o tipo de usuário');
+      setState(() => _carregando = false);
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text.trim();
+    final String roleBackend = tipoUsuario == 'artista' ? 'ARTIST' : 'CLIENT';
+    final String username = _nomeController.text.trim();
+
+    final url = Uri.parse('$_apiUrl/auth/register'); 
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'username': username,
+          'email': email,
+          'password': senha,
+          'role': roleBackend,
+        }),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 201) {
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Conta criada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pop(); 
+
+      } else {
+        final erroDados = jsonDecode(response.body);
+        final mensagemErro = erroDados['error'] ?? 'Erro ao realizar o cadastro.';
+        
+        _mostrarAlerta(mensagemErro);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _mostrarAlerta('Não foi possível conectar ao servidor. Verifique sua conexão.');
+    } finally {
+      if (mounted) {
+        setState(() => _carregando = false);
+      }
+    }
+  }
+
+
+  void _mostrarAlerta(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
   }
 
   @override
@@ -116,6 +188,36 @@ class _TelaCadastroState extends State<TelaCadastro> {
 
                       const Divider(color: AppCores.corDivisor),
                       const SizedBox(height: 15),
+
+
+                      // ── Nome ────────────────────────────────────
+                      const Text(
+                        'Nome',
+                        style: TextStyle(
+                          color: AppCores.corTexto,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _nomeController,
+                        keyboardType: TextInputType.name,
+                        decoration: const InputDecoration(
+                          hintText: 'Seu nome',
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            color: AppCores.corTextoSecundario,
+                          ),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Informe o nome';
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+
 
                       // ── Email ────────────────────────────────────
                       const Text(
@@ -253,7 +355,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
 
               const SizedBox(height: 24),
 
-              // Já tem conta?
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -287,7 +388,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 }
 
-// Widget do botão de seleção de tipo
+
 class _BotaoTipoUsuario extends StatelessWidget {
   final String label;
   final String descricao;
