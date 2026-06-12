@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../core/app_cores.dart';
 import 'tela_principal.dart';
 import 'tela_cadastro.dart';
+import 'package:http/http.dart' as http;
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -14,6 +17,7 @@ class _TelaLoginState extends State<TelaLogin> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
+  final String _apiUrl = 'http://10.0.2.2:3000';
   bool _senhaVisivel = false;
   bool _carregando = false;
 
@@ -28,15 +32,55 @@ class _TelaLoginState extends State<TelaLogin> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _carregando = true);
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text.trim();
 
-    // Simula autenticação
-    await Future.delayed(const Duration(seconds: 1));
+    final url = Uri.parse('$_apiUrl/auth/login'); 
 
-    if (!mounted) return;
-    setState(() => _carregando = false);
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': senha,
+        }),
+      );
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const TelaPrincipal()),
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final dados = jsonDecode(response.body);
+        final token = dados['token'];
+        print('Login efetuado com sucesso! Token: $token');
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TelaPrincipal()),
+        );
+      } else {
+        final erroDados = jsonDecode(response.body);
+        final mensagemErro = erroDados['error'] ?? 'Erro ao realizar login.';
+        
+        _mostrarAlerta(mensagemErro);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _mostrarAlerta('Não foi possível conectar ao servidor. Verifique sua conexão.');
+    } finally {
+      if (mounted) {
+        setState(() => _carregando = false);
+      }
+    }
+  }
+
+  void _mostrarAlerta(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.redAccent,
+      ),
     );
   }
 
@@ -52,7 +96,6 @@ class _TelaLoginState extends State<TelaLogin> {
             children: [
               const SizedBox(height: 32),
 
-              // Logo / Título
               const Text(
                 'ArtistAlley',
                 style: TextStyle(
@@ -73,7 +116,6 @@ class _TelaLoginState extends State<TelaLogin> {
 
               const SizedBox(height: 48),
 
-              // Card do formulário
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -156,24 +198,6 @@ class _TelaLoginState extends State<TelaLogin> {
                           if (v.length < 6) return 'Mínimo 6 caracteres';
                           return null;
                         },
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Esqueceu a senha
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppCores.corPrimaria,
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: const Text(
-                            'Esqueceu a senha?',
-                            style: TextStyle(fontSize: 13),
-                          ),
-                        ),
                       ),
 
                       const SizedBox(height: 20),

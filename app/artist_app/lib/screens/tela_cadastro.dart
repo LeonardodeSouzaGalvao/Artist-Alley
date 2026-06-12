@@ -31,26 +31,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   Future<void> _cadastrar() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (_tipoUsuario == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecione se você é artista ou cliente'),
-          backgroundColor: AppCores.corErro,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _carregando = true);
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() => _carregando = false);
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const TelaPrincipal()),
-    );
+    
   }
 
   @override
@@ -78,15 +59,6 @@ class _TelaCadastroState extends State<TelaCadastro> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                'Preencha os dados para começar',
-                style: TextStyle(
-                  color: AppCores.corTextoBranco.withOpacity(0.8),
-                  fontSize: 15,
-                ),
-              ),
-
-              const SizedBox(height: 32),
 
               // Card do formulário
               Container(
