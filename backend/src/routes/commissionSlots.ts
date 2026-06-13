@@ -36,6 +36,16 @@ router.get('/artist/:artistId', async (req: Request, res: Response) => {
   return res.json(commissionSlot);
 });
 
+router.get('/', async (_req: Request, res: Response) => {
+  try {
+    const commissionSlots = await commissionSlotService.findAll();
+    return res.json(commissionSlots);
+  } catch (error) {
+    console.error('Erro ao buscar commission slots:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
 

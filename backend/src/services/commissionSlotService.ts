@@ -42,3 +42,8 @@ export async function findById(id: string) {
   const slot = await prisma.commissionSlot.findUnique({ where: { id } });
   return slot ? toCommissionSlot(slot) : null;
 }
+
+export async function findAll() {
+  const slots = await prisma.commissionSlot.findMany();
+  return slots.map(slot => toCommissionSlot(slot));
+}
