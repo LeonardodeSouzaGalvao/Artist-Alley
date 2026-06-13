@@ -83,9 +83,16 @@ export async function findById(id: string) {
   return order ? toOrder(order) : null;
 }
 
+
 export async function findByClientId(clientId: string) {
-  const orders = await prisma.order.findMany({ where: { clientId } });
-  return orders.map(toOrder);
+  const orders = await prisma.order.findMany({ 
+    where: { clientId },
+    include: {
+      artist: true,
+      commissionSlot: true
+    }
+  });
+  return orders;
 }
 
 export async function findByCommissionSlotId(commissionSlotId: string) {

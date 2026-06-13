@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../core/app_cores.dart';
 
 class TelaPedidos extends StatefulWidget {
@@ -11,11 +14,20 @@ class TelaPedidos extends StatefulWidget {
 class _TelaPedidosState extends State<TelaPedidos>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final String _apiUrl = 'http://10.0.2.2:3000';
+  
+
+  final String _clientIdLogado = 'coloque_aqui_o_id_do_usuario'; 
+
+  List<dynamic> _todosPedidos = [];
+  bool _carregando = true;
+  String? _erroMensagem;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _buscarPedidosDoCliente();
   }
 
   @override
@@ -24,40 +36,52 @@ class _TelaPedidosState extends State<TelaPedidos>
     super.dispose();
   }
 
-  final _pedidos = [
-    {
-      'artista': 'Ana Costa',
-      'descricao': 'Ilustração digital – personagem principal do jogo',
-      'valor': 'R\$ 350,00',
-      'status': 'Em andamento',
-      'corStatus': AppCores.corAtencao,
-      'data': '05 jun 2026',
-    },
-    {
-      'artista': 'Bruno Melo',
-      'descricao': 'Arte conceitual – 3 cenários de fantasia',
-      'valor': 'R\$ 780,00',
-      'status': 'Concluído',
-      'corStatus': AppCores.corSucesso,
-      'data': '28 mai 2026',
-    },
-    {
-      'artista': 'Carla Dias',
-      'descricao': 'Retrato digital realista',
-      'valor': 'R\$ 200,00',
-      'status': 'Concluído',
-      'corStatus': AppCores.corSucesso,
-      'data': '14 mai 2026',
-    },
-    {
-      'artista': 'Diego Lima',
-      'descricao': 'Sprites pixel art para plataforma',
-      'valor': 'R\$ 420,00',
-      'status': 'Cancelado',
-      'corStatus': AppCores.corErro,
-      'data': '02 mai 2026',
-    },
-  ];
+  Future<void> _buscarPedidosDoCliente() async {
+    try {
+      setState(() {
+        _carregando = true;
+        _erroMensagem = null;
+      });
+
+      final url = Uri.parse('$_apiUrl/orders/client/$_clientIdLogado');
+      final response = await http.get(url);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final List<dynamic> dados = jsonDecode(response.body);
+        setState(() {
+          _todosPedidos = dados;
+          _carregando = false;
+        });
+      } else {
+        setState(() {
+          _erroMensagem = 'Não foi possível carregar seus pedidos.';
+          _carregando = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _erroMensagem = 'Erro de conexão com o servidor.';
+        _carregando = false;
+      });
+    }
+  }
+
+  List<dynamic> _filtrarPedidos(String statusTipo) {
+    if (statusTipo == 'andamento') {
+      return _todosPedidos.where((p) {
+        final status = p['status'] as String? ?? 'PENDING';
+        return status == 'PENDING' || status == 'ACCEPTED' || status == 'IN_PROGRESS';
+      }).toList();
+    } else if (statusTipo == 'concluido') {
+      return _todosPedidos.where((p) {
+        return (p['status'] as String? ?? '') == 'FINISHED';
+      }).toList();
+    }
+    return _todosPedidos;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +90,12 @@ class _TelaPedidosState extends State<TelaPedidos>
       appBar: AppBar(
         backgroundColor: AppCores.corSecundaria,
         title: const Text('Meus Pedidos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _buscarPedidosDoCliente,
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppCores.corPrimaria,
@@ -79,24 +109,45 @@ class _TelaPedidosState extends State<TelaPedidos>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _ListaPedidos(pedidos: _pedidos),
-          _ListaPedidos(
-            pedidos: _pedidos.where((p) => p['status'] == 'Em andamento').toList(),
-          ),
-          _ListaPedidos(
-            pedidos: _pedidos.where((p) => p['status'] == 'Concluído').toList(),
-          ),
-        ],
+      body: _carregando
+          ? const Center(child: CircularProgressIndicator(color: AppCores.corPrimaria))
+          : _erroMensagem != null
+              ? _buildErrorWidget()
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _ListaPedidos(pedidos: _filtrarPedidos('todos')),
+                    _ListaPedidos(pedidos: _filtrarPedidos('andamento')),
+                    _ListaPedidos(pedidos: _filtrarPedidos('concluido')),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: AppCores.corErro),
+            const SizedBox(height: 16),
+            Text(_erroMensagem!, style: const TextStyle(color: AppCores.corTextoSecundario)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _buscarPedidosDoCliente,
+              child: const Text('Tentar Novamente'),
+            )
+          ],
+        ),
       ),
     );
   }
 }
 
 class _ListaPedidos extends StatelessWidget {
-  final List<Map<String, dynamic>> pedidos;
+  final List<dynamic> pedidos;
   const _ListaPedidos({required this.pedidos});
 
   @override
@@ -106,7 +157,7 @@ class _ListaPedidos extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox_outlined, size: 64, color: AppCores.corTextoClaro),
+            Icon(Icons.inbox_outlined, size: 64, color: AppCores.corTextoSecundario),
             SizedBox(height: 16),
             Text(
               'Nenhum pedido aqui',
@@ -130,9 +181,46 @@ class _CardPedido extends StatelessWidget {
   final Map<String, dynamic> pedido;
   const _CardPedido({required this.pedido});
 
+  Map<String, dynamic> _obterInfoStatus(String statusOriginal) {
+    switch (statusOriginal) {
+      case 'PENDING':
+        return {'texto': 'Pendente', 'cor': AppCores.corAtencao, 'mostrarBotao': true};
+      case 'ACCEPTED':
+        return {'texto': 'Aceito', 'cor': AppCores.corAtencao, 'mostrarBotao': true};
+      case 'IN_PROGRESS':
+        return {'texto': 'Em Andamento', 'cor': AppCores.corAtencao, 'mostrarBotao': true};
+      case 'WAITING_PAYMENT':
+        return {'texto': 'Aguardando Pagamento', 'cor': AppCores.corAtencao, 'mostrarBotao': true};
+      case 'FINISHED':
+        return {'texto': 'Concluído', 'cor': AppCores.corSucesso, 'mostrarBotao': false};
+      case 'CANCELLED':
+        return {'texto': 'Cancelado', 'cor': AppCores.corErro, 'mostrarBotao': false};
+      default:
+        return {'texto': statusOriginal, 'cor': Colors.grey, 'mostrarBotao': false};
+    }
+  }
+
+  String _formatarData(String? dataRaw) {
+    if (dataRaw == null) return '';
+    try {
+      final data = DateTime.parse(dataRaw);
+      return DateFormat('dd ' 'MMM' ' yyyy', 'pt_BR').format(data);
+    } catch (_) {
+      return dataRaw.split('T')[0];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final corStatus = pedido['corStatus'] as Color;
+    final statusOriginal = pedido['status'] as String? ?? 'PENDING';
+    final infoStatus = _obterInfoStatus(statusOriginal);
+  
+    final String artistaNome = pedido['artist']?['username'] as String? ?? 'Artista';
+    final String descricao = pedido['description'] as String? ?? 'Sem descrição';
+    final String dataFormatada = _formatarData(pedido['createdAt']);
+    
+    final dynamic precoRaw = pedido['commissionSlot']?['price'];
+    final String valorFormatado = precoRaw != null ? 'R\$ ${precoRaw.toString()}' : 'Valor sob consulta';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -147,7 +235,6 @@ class _CardPedido extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cabeçalho: artista + status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -157,7 +244,7 @@ class _CardPedido extends StatelessWidget {
                     radius: 18,
                     backgroundColor: AppCores.corDestaque,
                     child: Text(
-                      (pedido['artista'] as String)[0],
+                      artistaNome.isNotEmpty ? artistaNome[0].toUpperCase() : 'A',
                       style: const TextStyle(
                         color: AppCores.corPrimaria,
                         fontWeight: FontWeight.bold,
@@ -166,7 +253,7 @@ class _CardPedido extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    pedido['artista'] as String,
+                    artistaNome,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -178,13 +265,13 @@ class _CardPedido extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: corStatus.withOpacity(0.12),
+                  color: (infoStatus['cor'] as Color).withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  pedido['status'] as String,
+                  infoStatus['texto'] as String,
                   style: TextStyle(
-                    color: corStatus,
+                    color: infoStatus['cor'] as Color,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -192,29 +279,23 @@ class _CardPedido extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 10),
           const Divider(height: 1, color: AppCores.corDivisor),
           const SizedBox(height: 10),
-
-          // Descrição
           Text(
-            pedido['descricao'] as String,
+            descricao,
             style: const TextStyle(
               color: AppCores.corTexto,
               fontSize: 14,
               height: 1.4,
             ),
           ),
-
           const SizedBox(height: 10),
-
-          // Valor e data
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                pedido['valor'] as String,
+                valorFormatado,
                 style: const TextStyle(
                   color: AppCores.corPrimaria,
                   fontWeight: FontWeight.bold,
@@ -222,7 +303,7 @@ class _CardPedido extends StatelessWidget {
                 ),
               ),
               Text(
-                pedido['data'] as String,
+                dataFormatada,
                 style: const TextStyle(
                   color: AppCores.corTextoClaro,
                   fontSize: 13,
@@ -230,15 +311,14 @@ class _CardPedido extends StatelessWidget {
               ),
             ],
           ),
-
-          // Botão de ação (só aparece se estiver em andamento)
-          if (pedido['status'] == 'Em andamento') ...[
+          if (infoStatus['mostrarBotao'] as bool) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               height: 40,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                },
                 style: ElevatedButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 14),
                 ),

@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
-import 'core/app_tema.dart';
 import 'screens/tela_login.dart';
+import 'screens/tela_principal.dart';
+import 'screens/userSection.dart';
 
-void main() {
-  runApp(const ArtistAlleyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final loggedIn = await UserSession.instance.load();
+
+  runApp(MyApp(startLoggedIn: loggedIn));
 }
 
-class ArtistAlleyApp extends StatelessWidget {
-  const ArtistAlleyApp({super.key});
+class MyApp extends StatelessWidget {
+  final bool startLoggedIn;
+  const MyApp({super.key, required this.startLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ArtistAlley',
-      debugShowCheckedModeBanner: false,
-      theme: AppTema.tema,
-      home: const TelaLogin(),
+      home: startLoggedIn ? const TelaPrincipal() : const TelaLogin(),
     );
   }
 }

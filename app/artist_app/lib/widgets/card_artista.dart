@@ -25,7 +25,7 @@ class CardArtista extends StatelessWidget {
             nome: nome,
             descricao: descricao,
             valor: valor,
-            fotoUrl: fotoUrl,
+            fotoUrl: fotoUrl, artistId: '', commissionSlotId: '',
           ),
         ),
       ),

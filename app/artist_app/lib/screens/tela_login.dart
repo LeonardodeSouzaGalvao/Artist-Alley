@@ -5,6 +5,7 @@ import '../core/app_cores.dart';
 import 'tela_principal.dart';
 import 'tela_cadastro.dart';
 import 'package:http/http.dart' as http;
+import 'userSection.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -52,14 +53,22 @@ class _TelaLoginState extends State<TelaLogin> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        final dados = jsonDecode(response.body);
-        final token = dados['token'];
-        print('Login efetuado com sucesso! Token: $token');
+  final dados = jsonDecode(response.body);
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const TelaPrincipal()),
-        );
-      } else {
+  await UserSession.instance.save(
+    id:       dados['user']['id'],
+    username: dados['user']['username'],
+    email:    dados['user']['email'],
+    role:     dados['user']['role'],
+    token:    dados['token'],
+  );
+
+  if (!mounted) return;
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (_) => const TelaPrincipal()),
+  );
+}
+ else {
         final erroDados = jsonDecode(response.body);
         final mensagemErro = erroDados['error'] ?? 'Erro ao realizar login.';
         

@@ -19,9 +19,11 @@ router.post('/register', async (req: Request, res: Response) => {
   return res.status(201).json({ id: user.id, username: user.username, email: user.email, role: user.role });
 });
 
+
 router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body as { email?: string; password?: string };
-  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+  if (!email || !password)
+    return res.status(400).json({ error: 'email and password required' });
 
   const user = await userService.findByEmail(email);
   if (!user) return res.status(401).json({ error: 'invalid credentials' });
@@ -29,8 +31,21 @@ router.post('/login', async (req: Request, res: Response) => {
   const valid = await userService.verifyPassword(user.id, password);
   if (!valid) return res.status(401).json({ error: 'invalid credentials' });
 
-  const token = jwt.sign({ sub: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-  return res.json({ token });
+  const token = jwt.sign(
+    { sub: user.id, username: user.username },
+    JWT_SECRET,
+    { expiresIn: '1h' },
+  );
+
+  return res.json({
+    token,
+    user: {
+      id:       user.id,
+      username: user.username,
+      email:    user.email,
+      role:     user.role,
+    },
+  });
 });
 
 router.post('/turnintoArtist', async (req: Request, res: Response) => {
