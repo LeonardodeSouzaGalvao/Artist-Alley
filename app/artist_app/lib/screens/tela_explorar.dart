@@ -335,6 +335,13 @@ class _CardVaga extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 textStyle: const TextStyle(fontSize: 14),
+                foregroundColor: Colors.white,
+                backgroundColor: AppCores.corPrimaria,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                
+                
               ),
               child: const Text('Ver detalhes'),
             ),

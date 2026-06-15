@@ -167,6 +167,13 @@ class TelaDetalheArtista extends StatelessWidget {
         ),
         child: ElevatedButton(
           onPressed: () => _mostrarModalContratar(context),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: AppCores.corPrimaria,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           child: const Text('Pedir commission'),
         ),
       ),

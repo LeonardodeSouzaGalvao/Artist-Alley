@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cae671db-16df-46c4-a2ed-21d5ffc33e6e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/artist_app/lib/core/app_cores.dart" beforeDir="false" afterPath="$PROJECT_DIR$/app/artist_app/lib/core/app_cores.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/artist_app/lib/core/app_tema.dart" beforeDir="false" afterPath="$PROJECT_DIR$/app/artist_app/lib/core/app_tema.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_explorar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_explorar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_pedidos.dart" beforeDir="false" afterPath="$PROJECT_DIR$/app/artist_app/lib/screens/tela_pedidos.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/commissionSlotService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/commissionSlotService.ts" afterDir="false" />
-    </list>
+    <list default="true" id="cae671db-16df-46c4-a2ed-21d5ffc33e6e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

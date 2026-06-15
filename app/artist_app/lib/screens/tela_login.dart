@@ -217,6 +217,13 @@ class _TelaLoginState extends State<TelaLogin> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: _carregando ? null : _entrar,
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: AppCores.corPrimaria,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                           child: _carregando
                               ? const SizedBox(
                                   width: 22,

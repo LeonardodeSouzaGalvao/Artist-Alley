@@ -348,20 +348,7 @@ class _CardPedido extends StatelessWidget {
               ),
             ],
           ),
-          if (infoStatus['mostrarBotao'] as bool) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 14),
-                ),
-                child: const Text('Ver andamento'),
-              ),
-            ),
-          ],
+          
         ],
       ),
     );
