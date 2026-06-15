@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 
 export type User = { id: string; username: string; email: string; role: Role };
 
+
 function toUser(user: PrismaUser): User {
   return {
     id: user.id,
