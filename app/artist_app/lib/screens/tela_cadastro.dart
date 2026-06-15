@@ -120,14 +120,14 @@ class _TelaCadastroState extends State<TelaCadastro> {
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            
             children: [
               const Text(
                 'Criar conta',
                 style: TextStyle(
                   color: AppCores.corTextoBranco,
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 6),
@@ -336,6 +336,13 @@ class _TelaCadastroState extends State<TelaCadastro> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: _carregando ? null : _cadastrar,
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: AppCores.corPrimaria,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                           child: _carregando
                               ? const SizedBox(
                                   width: 22,
