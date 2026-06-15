@@ -1,7 +1,16 @@
-import {CommissionSlot as PrismaCommissionSlot } from '@prisma/client';
+import { CommissionSlot as PrismaCommissionSlot } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 
-export type CommissionSlot = { id: string; title: string; description: string; price: number ; imageUrl?: string; slots: number; available: boolean };
+export type CommissionSlot = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl?: string;
+  slots: number;
+  available: boolean;
+  artistId: string;
+};
 
 function toCommissionSlot(commissionSlot: PrismaCommissionSlot): CommissionSlot {
   return {
@@ -12,21 +21,22 @@ function toCommissionSlot(commissionSlot: PrismaCommissionSlot): CommissionSlot 
     imageUrl: commissionSlot.imageUrl ?? undefined,
     slots: commissionSlot.slots,
     available: commissionSlot.available,
+    artistId: commissionSlot.artistId,
   };
 }
 
 export async function createCommissionSlot(title: string, description: string, price: number, artistId: string, slots: number, imageUrl?: string) {
   const slot = await prisma.commissionSlot.create({
     data: {
-        title,
-        description,
-        price,
-        slots,
-        available: true,
-        imageUrl: imageUrl ?? '',
-        artist: {
-          connect: { id: artistId },
-        },
+      title,
+      description,
+      price,
+      slots,
+      available: true,
+      imageUrl: imageUrl ?? '',
+      artist: {
+        connect: { id: artistId },
+      },
     },
   });
 

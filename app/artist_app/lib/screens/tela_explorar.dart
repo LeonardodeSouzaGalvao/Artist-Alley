@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../core/app_cores.dart';
 
-
 class CloudinaryConfig {
-  static const String cloudName = const String.fromEnvironment('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME');
-  static const String uploadPreset = const String.fromEnvironment('NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET');
+  static const String cloudName = const String.fromEnvironment(
+    'NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME',
+  );
+  static const String uploadPreset = const String.fromEnvironment(
+    'NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET',
+  );
 }
 
 class TelaExplorar extends StatefulWidget {
@@ -68,7 +71,8 @@ class _TelaExplorarState extends State<TelaExplorar> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _erroMensagem = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+        _erroMensagem =
+            'Não foi possível conectar ao servidor. Verifique sua conexão.';
         _carregando = false;
       });
     }
@@ -82,7 +86,9 @@ class _TelaExplorarState extends State<TelaExplorar> {
       } else {
         _commissionsFiltradas = _todasCommissions.where((vaga) {
           final titulo = (vaga['title'] ?? '').toString().toLowerCase();
-          final descricao = (vaga['description'] ?? '').toString().toLowerCase();
+          final descricao = (vaga['description'] ?? '')
+              .toString()
+              .toLowerCase();
           return titulo.contains(query) || descricao.contains(query);
         }).toList();
       }
@@ -116,14 +122,18 @@ class _TelaExplorarState extends State<TelaExplorar> {
               controller: _buscaController,
               decoration: const InputDecoration(
                 hintText: 'Buscar vagas...',
-                prefixIcon: Icon(Icons.search, color: AppCores.corTextoSecundario),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: AppCores.corTextoSecundario,
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
             ),
           ),
-          Expanded(
-            child: _construirConteudo(),
-          ),
+          Expanded(child: _construirConteudo()),
         ],
       ),
     );
@@ -132,9 +142,7 @@ class _TelaExplorarState extends State<TelaExplorar> {
   Widget _construirConteudo() {
     if (_carregando) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: AppCores.corPrimaria,
-        ),
+        child: CircularProgressIndicator(color: AppCores.corPrimaria),
       );
     }
 
@@ -189,7 +197,10 @@ class _CardVaga extends StatelessWidget {
     if (urlOriginal.isEmpty) return '';
 
     if (urlOriginal.contains('cloudinary.com')) {
-      return urlOriginal.replaceAll('/upload/', '/upload/w_400,c_scale,q_auto,f_auto/');
+      return urlOriginal.replaceAll(
+        '/upload/',
+        '/upload/w_400,c_scale,q_auto,f_auto/',
+      );
     }
 
     if (!urlOriginal.startsWith('http')) {
@@ -205,9 +216,11 @@ class _CardVaga extends StatelessWidget {
     final String? imageUrl = vaga['imageUrl'] as String?;
     final String title = vaga['title'] as String? ?? 'Sem título';
     final String description = vaga['description'] as String? ?? '';
-    
+
     final dynamic priceRaw = vaga['price'];
-    final String orcamento = priceRaw != null ? 'R\$ ${priceRaw.toString()}' : 'A combinar';
+    final String orcamento = priceRaw != null
+        ? 'R\$ ${priceRaw.toString()}'
+        : 'A combinar';
 
     final String urlFinal = obterUrlOtimizada(imageUrl ?? '');
 
@@ -218,7 +231,11 @@ class _CardVaga extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppCores.corBorda, width: 0.8),
         boxShadow: const [
-          BoxShadow(color: AppCores.corSombra, blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: AppCores.corSombra,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -232,7 +249,7 @@ class _CardVaga extends StatelessWidget {
               color: Colors.grey[200],
               child: urlFinal.isNotEmpty
                   ? Image.network(
-                      urlFinal, 
+                      urlFinal,
                       fit: BoxFit.cover,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -278,7 +295,11 @@ class _CardVaga extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Icons.attach_money, size: 16, color: AppCores.corSucesso),
+              const Icon(
+                Icons.attach_money,
+                size: 16,
+                color: AppCores.corSucesso,
+              ),
               Text(
                 orcamento,
                 style: const TextStyle(
@@ -296,13 +317,18 @@ class _CardVaga extends StatelessWidget {
             height: 40,
             child: ElevatedButton(
               onPressed: () {
+                final String artistId = (vaga['artistId'] ?? '') as String;
+                final String commissionSlotId = (vaga['id'] ?? '') as String;
+
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => TelaDetalheArtista(
                       nome: title,
                       descricao: description,
                       valor: orcamento,
-                      fotoUrl: urlFinal, artistId: '', commissionSlotId: '',
+                      fotoUrl: urlFinal,
+                      artistId: artistId,
+                      commissionSlotId: commissionSlotId,
                     ),
                   ),
                 );

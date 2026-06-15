@@ -4,11 +4,13 @@ import 'app_cores.dart';
 class AppTema {
   static ThemeData get tema {
     return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppCores.corPrimaria,
+      useMaterial3: false,
+      primaryColor: AppCores.corPrimaria,
+      colorScheme: const ColorScheme.light(
         primary: AppCores.corPrimaria,
         onPrimary: AppCores.corTextoBranco,
+        secondary: AppCores.corPrimaria,
+        onSecondary: AppCores.corTextoBranco,
         surface: AppCores.corFundo,
         onSurface: AppCores.corTexto,
       ),
@@ -24,18 +26,21 @@ class AppTema {
           fontWeight: FontWeight.bold,
         ),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppCores.corSecundaria,
-        selectedItemColor: AppCores.corPrimaria,
-        unselectedItemColor: AppCores.corTextoClaro,
-        elevation: 8,
-        type: BottomNavigationBarType.fixed,
+      buttonTheme: const ButtonThemeData(
+        buttonColor: AppCores.corPrimaria,
+        textTheme: ButtonTextTheme.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppCores.corPrimaria,
           foregroundColor: AppCores.corTextoBranco,
+          disabledBackgroundColor: AppCores.corPrimaria.withOpacity(0.4),
+          disabledForegroundColor: AppCores.corTextoBranco.withOpacity(0.7),
           minimumSize: const Size(double.infinity, 48),
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -44,6 +49,13 @@ class AppTema {
             fontWeight: FontWeight.w600,
           ),
         ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppCores.corSecundaria,
+        selectedItemColor: AppCores.corPrimaria,
+        unselectedItemColor: AppCores.corTextoClaro,
+        elevation: 8,
+        type: BottomNavigationBarType.fixed,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

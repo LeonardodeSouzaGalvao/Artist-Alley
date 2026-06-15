@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../core/app_cores.dart';
+import 'userSection.dart'; // ← adicionar import
 
 class TelaPedidos extends StatefulWidget {
   const TelaPedidos({super.key});
@@ -15,9 +16,6 @@ class _TelaPedidosState extends State<TelaPedidos>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final String _apiUrl = 'http://10.0.2.2:3000';
-  
-
-  final String _clientIdLogado = 'coloque_aqui_o_id_do_usuario'; 
 
   List<dynamic> _todosPedidos = [];
   bool _carregando = true;
@@ -37,14 +35,30 @@ class _TelaPedidosState extends State<TelaPedidos>
   }
 
   Future<void> _buscarPedidosDoCliente() async {
+    // ← pega o id da sessão em vez de hardcoded
+    final clientId = UserSession.instance.id;
+    if (clientId == null) {
+      setState(() {
+        _erroMensagem = 'Sessão expirada. Faça login novamente.';
+        _carregando = false;
+      });
+      return;
+    }
+
     try {
       setState(() {
         _carregando = true;
         _erroMensagem = null;
       });
 
-      final url = Uri.parse('$_apiUrl/orders/client/$_clientIdLogado');
-      final response = await http.get(url);
+      final url = Uri.parse('$_apiUrl/orders/client/$clientId');
+      final token = UserSession.instance.token;
+      final response = await http.get(
+        url,
+        headers: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
 
       if (!mounted) return;
 
@@ -73,7 +87,10 @@ class _TelaPedidosState extends State<TelaPedidos>
     if (statusTipo == 'andamento') {
       return _todosPedidos.where((p) {
         final status = p['status'] as String? ?? 'PENDING';
-        return status == 'PENDING' || status == 'ACCEPTED' || status == 'IN_PROGRESS';
+        return status == 'PENDING' ||
+            status == 'ACCEPTED' ||
+            status == 'IN_PROGRESS' ||
+            status == 'WAITING_PAYMENT';
       }).toList();
     } else if (statusTipo == 'concluido') {
       return _todosPedidos.where((p) {
@@ -110,7 +127,9 @@ class _TelaPedidosState extends State<TelaPedidos>
         ),
       ),
       body: _carregando
-          ? const Center(child: CircularProgressIndicator(color: AppCores.corPrimaria))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppCores.corPrimaria),
+            )
           : _erroMensagem != null
               ? _buildErrorWidget()
               : TabBarView(
@@ -133,12 +152,16 @@ class _TelaPedidosState extends State<TelaPedidos>
           children: [
             const Icon(Icons.error_outline, size: 64, color: AppCores.corErro),
             const SizedBox(height: 16),
-            Text(_erroMensagem!, style: const TextStyle(color: AppCores.corTextoSecundario)),
+            Text(
+              _erroMensagem!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppCores.corTextoSecundario),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _buscarPedidosDoCliente,
               child: const Text('Tentar Novamente'),
-            )
+            ),
           ],
         ),
       ),
@@ -161,7 +184,10 @@ class _ListaPedidos extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'Nenhum pedido aqui',
-              style: TextStyle(color: AppCores.corTextoSecundario, fontSize: 16),
+              style: TextStyle(
+                color: AppCores.corTextoSecundario,
+                fontSize: 16,
+              ),
             ),
           ],
         ),
@@ -181,8 +207,8 @@ class _CardPedido extends StatelessWidget {
   final Map<String, dynamic> pedido;
   const _CardPedido({required this.pedido});
 
-  Map<String, dynamic> _obterInfoStatus(String statusOriginal) {
-    switch (statusOriginal) {
+  Map<String, dynamic> _obterInfoStatus(String status) {
+    switch (status) {
       case 'PENDING':
         return {'texto': 'Pendente', 'cor': AppCores.corAtencao, 'mostrarBotao': true};
       case 'ACCEPTED':
@@ -196,7 +222,7 @@ class _CardPedido extends StatelessWidget {
       case 'CANCELLED':
         return {'texto': 'Cancelado', 'cor': AppCores.corErro, 'mostrarBotao': false};
       default:
-        return {'texto': statusOriginal, 'cor': Colors.grey, 'mostrarBotao': false};
+        return {'texto': status, 'cor': Colors.grey, 'mostrarBotao': false};
     }
   }
 
@@ -204,7 +230,7 @@ class _CardPedido extends StatelessWidget {
     if (dataRaw == null) return '';
     try {
       final data = DateTime.parse(dataRaw);
-      return DateFormat('dd ' 'MMM' ' yyyy', 'pt_BR').format(data);
+      return DateFormat("dd MMM yyyy", 'pt_BR').format(data);
     } catch (_) {
       return dataRaw.split('T')[0];
     }
@@ -214,13 +240,20 @@ class _CardPedido extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusOriginal = pedido['status'] as String? ?? 'PENDING';
     final infoStatus = _obterInfoStatus(statusOriginal);
-  
-    final String artistaNome = pedido['artist']?['username'] as String? ?? 'Artista';
+
+    // o backend retorna artist.name (campo do Prisma), mas o userService
+    // mapeia name → username, então o JSON do include pode vir como 'name'
+    final artistaObj = pedido['artist'] as Map<String, dynamic>?;
+    final String artistaNome =
+        (artistaObj?['name'] ?? artistaObj?['username'] ?? 'Artista') as String;
+
     final String descricao = pedido['description'] as String? ?? 'Sem descrição';
-    final String dataFormatada = _formatarData(pedido['createdAt']);
-    
+    final String dataFormatada = _formatarData(pedido['createdAt'] as String?);
+
     final dynamic precoRaw = pedido['commissionSlot']?['price'];
-    final String valorFormatado = precoRaw != null ? 'R\$ ${precoRaw.toString()}' : 'Valor sob consulta';
+    final String valorFormatado = precoRaw != null
+        ? 'R\$ ${precoRaw.toString()}'
+        : 'Valor sob consulta';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -229,7 +262,11 @@ class _CardPedido extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppCores.corBorda, width: 0.8),
         boxShadow: const [
-          BoxShadow(color: AppCores.corSombra, blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: AppCores.corSombra,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -317,8 +354,7 @@ class _CardPedido extends StatelessWidget {
               width: double.infinity,
               height: 40,
               child: ElevatedButton(
-                onPressed: () {
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 14),
                 ),
