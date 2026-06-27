@@ -19,185 +19,119 @@ async function handleCreateOrder(req: Request, res: Response) {
   }
 
   const client = await userService.findById(clientId);
-  if (!client) {
-    return res.status(404).json({ error: 'client not found' });
-  }
+  if (!client) return res.status(404).json({ error: 'client not found' });
 
   const artist = await userService.findById(artistId);
-  if (!artist) {
-    return res.status(404).json({ error: 'artist not found' });
-  }
+  if (!artist) return res.status(404).json({ error: 'artist not found' });
 
-  
   const commissionSlot = await commissionSlotService.findById(commissionSlotId);
-  if (!commissionSlot) {
-    return res.status(404).json({ error: 'commission slot not found' });
-  }
+  if (!commissionSlot) return res.status(404).json({ error: 'commission slot not found' });
 
   const order = await OrderService.createOrder(clientId, artistId, commissionSlotId, description, referenceImage);
   return res.status(201).json(order);
 }
 
-
 router.post('/createOrder', handleCreateOrder);
 
+// ✅ CORRIGIDO: usa findAllByArtistId — retorna todas as orders, não só a primeira
 router.get('/artist/:artistId', async (req: Request, res: Response) => {
-  const { artistId } = req.params;
+  const artistId = req.params.artistId as string;
+  if (!artistId) return res.status(400).json({ error: 'artistId required' });
 
-  if (typeof artistId !== 'string' || !artistId) {
-    return res.status(400).json({ error: 'artistId required' });
-  }
-
-  const order = await OrderService.findByArtistId(artistId);
-
-  if (!order) {
-    return res.status(404).json({ error: 'order not found for artist' });
-  }
-
-  return res.json(order);
-});
-
-router.get('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  if (typeof id !== 'string' || !id) {
-    return res.status(400).json({ error: 'id required' });
-  }
-
-  const order = await OrderService.findById(id);
-
-  if (!order) {
-    return res.status(404).json({ error: 'order not found' });
-  }
-
-  return res.json(order);
+  const orders = await OrderService.findAllByArtistId(artistId);
+  return res.json(orders); // sempre retorna array (vazio ou com itens)
 });
 
 router.get('/client/:clientId', async (req: Request, res: Response) => {
-  const { clientId } = req.params;
-  if (typeof clientId !== 'string' || !clientId) {
-    return res.status(400).json({ error: 'clientId required' });
-  }
+  const clientId = req.params.clientId as string;
+  if (!clientId) return res.status(400).json({ error: 'clientId required' });
 
   const orders = await OrderService.findByClientId(clientId);
   return res.json(orders);
 });
 
-router.get('/commissionSlot/:commissionSlotId', async (req: Request, res: Response) => {
-  const { commissionSlotId } = req.params;
-  if (typeof commissionSlotId !== 'string' || !commissionSlotId) {
-    return res.status(400).json({ error: 'commissionSlotId required' });
-  }
-
-  const orders = await OrderService.findByCommissionSlotId(commissionSlotId);
-  return res.json(orders);
-});
-
 router.get('/commissionSlot/:commissionSlotId/queue', async (req: Request, res: Response) => {
-  const { commissionSlotId } = req.params;
-
-  if (typeof commissionSlotId !== 'string' || !commissionSlotId) {
-    return res.status(400).json({ error: 'commissionSlotId required' });
-  }
+  const commissionSlotId = req.params.commissionSlotId as string;
+  if (!commissionSlotId) return res.status(400).json({ error: 'commissionSlotId required' });
 
   const queue = await OrderService.findCommissionQueueProjectionByCommissionSlotId(commissionSlotId);
   return res.json(queue);
 });
 
+router.get('/commissionSlot/:commissionSlotId', async (req: Request, res: Response) => {
+  const commissionSlotId = req.params.commissionSlotId as string;
+  if (!commissionSlotId) return res.status(400).json({ error: 'commissionSlotId required' });
+
+  const orders = await OrderService.findByCommissionSlotId(commissionSlotId);
+  return res.json(orders);
+});
+
+// /:id deve vir por último para não capturar /artist, /client, /commissionSlot
+router.get('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  if (!id) return res.status(400).json({ error: 'id required' });
+
+  const order = await OrderService.findById(id);
+  if (!order) return res.status(404).json({ error: 'order not found' });
+  return res.json(order);
+});
+
 router.put('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { status } = req.body as { status?: string };
 
-  if (typeof id !== 'string' || !id) {
-    return res.status(400).json({ error: 'id required' });
-  }
-
+  if (!id) return res.status(400).json({ error: 'id required' });
   if (!status || !['PENDING', 'ACCEPTED', 'IN_PROGRESS', 'WAITING_PAYMENT', 'REVISED', 'FINISHED', 'CANCELLED'].includes(status)) {
     return res.status(400).json({ error: 'valid status required' });
   }
 
   const order = await OrderService.findById(id);
-  if (!order) {
-    return res.status(404).json({ error: 'order not found' });
-  }
+  if (!order) return res.status(404).json({ error: 'order not found' });
 
   const updatedOrder = await OrderService.updateOrderStatus(id, status as OrderStatus);
   return res.json(updatedOrder);
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  if (typeof id !== 'string' || !id) {
-    return res.status(400).json({ error: 'id required' });
-  }
+  const id = req.params.id as string;
+  if (!id) return res.status(400).json({ error: 'id required' });
 
   const order = await OrderService.findById(id);
-  if (!order) {
-    return res.status(404).json({ error: 'order not found' });
-  }
+  if (!order) return res.status(404).json({ error: 'order not found' });
 
   const deletedOrder = await OrderService.deleteOrder(id);
   return res.json(deletedOrder);
 });
 
 router.post('/:id/accept', async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { artistId } = req.body as { artistId?: string };
 
-  if (typeof id !== 'string' || !id) {
-    return res.status(400).json({ error: 'id required' });
-  }
-
-  if (!artistId) {
-    return res.status(400).json({ error: 'artistId required' });
-  }
+  if (!id) return res.status(400).json({ error: 'id required' });
+  if (!artistId) return res.status(400).json({ error: 'artistId required' });
 
   const order = await OrderService.findById(id);
-  if (!order) {
-    return res.status(404).json({ error: 'order not found' });
-  }
-
-  if (order.status !== 'PENDING') {
-    return res.status(400).json({ error: 'only pending orders can be accepted' });
-  }
-
-  if (order.artistId !== artistId) {
-    return res.status(403).json({ error: 'only the artist can accept this order' });
-  }
+  if (!order) return res.status(404).json({ error: 'order not found' });
+  if (order.status !== 'PENDING') return res.status(400).json({ error: 'only pending orders can be accepted' });
+  if (order.artistId !== artistId) return res.status(403).json({ error: 'only the artist can accept this order' });
 
   const updatedOrder = await OrderService.updateOrderStatus(id, 'ACCEPTED');
-
   return res.json(updatedOrder);
 });
 
 router.post('/:id/reject', async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { artistId } = req.body as { artistId?: string };
 
-  if (typeof id !== 'string' || !id) {
-    return res.status(400).json({ error: 'id required' });
-  }
-
-  if (!artistId) {
-    return res.status(400).json({ error: 'artistId required' });
-  }
+  if (!id) return res.status(400).json({ error: 'id required' });
+  if (!artistId) return res.status(400).json({ error: 'artistId required' });
 
   const order = await OrderService.findById(id);
-  if (!order) {
-    return res.status(404).json({ error: 'order not found' });
-  }
-
-  if (order.status !== 'PENDING') {
-    return res.status(400).json({ error: 'only pending orders can be rejected' });
-  }
-
-  if (order.artistId !== artistId) {
-    return res.status(403).json({ error: 'only the artist can reject this order' });
-  }
+  if (!order) return res.status(404).json({ error: 'order not found' });
+  if (order.status !== 'PENDING') return res.status(400).json({ error: 'only pending orders can be rejected' });
+  if (order.artistId !== artistId) return res.status(403).json({ error: 'only the artist can reject this order' });
 
   const updatedOrder = await OrderService.updateOrderStatus(id, 'CANCELLED');
-
   return res.json(updatedOrder);
 });
 

@@ -17,18 +17,28 @@ class TelaPrincipal extends StatefulWidget {
 class _TelaPrincipalState extends State<TelaPrincipal> {
   int _indiceSelecionado = 0;
 
-  List<Widget> get _telas {
-    return [
-      const TelaHome(),
-      const TelaExplorar(),
-      if (!UserSession.instance.isArtist)const TelaPedidos(),
-      if (UserSession.instance.isArtist) const TelaOrdersArtista(),
-      if (UserSession.instance.isArtist) const TelaCommissions(),
-    ];
+  // Calculado uma única vez por build e reutilizado
+  late List<Widget> _telas;
+  late List<BottomNavigationBarItem> _itensNav;
+
+  @override
+  void initState() {
+    super.initState();
+    _recalcularNavegacao();
   }
 
-  List<BottomNavigationBarItem> get _itensNav {
-    return [
+  void _recalcularNavegacao() {
+    final isArtist = UserSession.instance.isArtist;
+
+    _telas = [
+      const TelaHome(),
+      const TelaExplorar(),
+      if (!isArtist) const TelaPedidos(),
+      if (isArtist) const TelaOrdersArtista(),
+      if (isArtist) const TelaCommissions(),
+    ];
+
+    _itensNav = [
       const BottomNavigationBarItem(
         icon: Icon(Icons.home_outlined),
         activeIcon: Icon(Icons.home_rounded),
@@ -39,19 +49,19 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         activeIcon: Icon(Icons.explore_rounded),
         label: 'Explorar',
       ),
-      if(!UserSession.instance.isArtist)
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.receipt_long_outlined),
-        activeIcon: Icon(Icons.receipt_long_rounded),
-        label: 'Pedidos',
-      ),
-      if(UserSession.instance.isArtist)
+      if (!isArtist)
         const BottomNavigationBarItem(
           icon: Icon(Icons.receipt_long_outlined),
           activeIcon: Icon(Icons.receipt_long_rounded),
-          label: 'Pedidos_Artista',
+          label: 'Pedidos',
         ),
-      if (UserSession.instance.isArtist)
+      if (isArtist)
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.receipt_long_outlined),
+          activeIcon: Icon(Icons.receipt_long_rounded),
+          label: 'Pedidos',
+        ),
+      if (isArtist)
         const BottomNavigationBarItem(
           icon: Icon(Icons.draw_outlined),
           activeIcon: Icon(Icons.draw),
@@ -62,12 +72,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-
-    final telas = _telas;
+    // Garante que o índice nunca ultrapasse o tamanho da lista
+    final indiceSeguro = _indiceSelecionado.clamp(0, _telas.length - 1);
 
     return Scaffold(
       body: IndexedStack(
-        index: _indiceSelecionado,
+        index: indiceSeguro,
         children: _telas,
       ),
       bottomNavigationBar: Container(
@@ -77,7 +87,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           ),
         ),
         child: BottomNavigationBar(
-          currentIndex: _indiceSelecionado,
+          currentIndex: indiceSeguro,
           onTap: (i) => setState(() => _indiceSelecionado = i),
           backgroundColor: AppCores.corSecundaria,
           selectedItemColor: AppCores.corPrimaria,

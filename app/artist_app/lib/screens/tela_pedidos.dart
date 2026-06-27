@@ -28,6 +28,7 @@ class _TelaPedidosState extends State<TelaPedidos>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Busca inicial única para popular a tela no primeiro acesso
     _buscarPedidosDoCliente();
     _escutarEventos();
   }
@@ -36,11 +37,14 @@ class _TelaPedidosState extends State<TelaPedidos>
     final userId = UserSession.instance.id;
     if (userId == null) return;
 
-    _eventoSub = EventService.instance
-        .connect(userId)
-        .listen((evento) {
-          
-      if (evento['type'] == 'ORDER_UPDATE') {
+    _eventoSub = EventService.instance.connect(userId).listen((evento) {
+      final tipo = evento['type'] as String?;
+      // Escuta todos os tipos de evento de order relevantes para o cliente
+      if (tipo == 'ORDER_CREATED' ||
+          tipo == 'ORDER_ACCEPTED' ||
+          tipo == 'ORDER_REJECTED' ||
+          tipo == 'ORDER_STATUS_CHANGED' ||
+          tipo == 'COMMISSION_ORDER_QUEUED') {
         _buscarPedidosDoCliente();
       }
     });
@@ -54,7 +58,6 @@ class _TelaPedidosState extends State<TelaPedidos>
   }
 
   Future<void> _buscarPedidosDoCliente() async {
-    // ← pega o id da sessão em vez de hardcoded
     final clientId = UserSession.instance.id;
     if (clientId == null) {
       setState(() {
@@ -260,8 +263,6 @@ class _CardPedido extends StatelessWidget {
     final statusOriginal = pedido['status'] as String? ?? 'PENDING';
     final infoStatus = _obterInfoStatus(statusOriginal);
 
-    // o backend retorna artist.name (campo do Prisma), mas o userService
-    // mapeia name → username, então o JSON do include pode vir como 'name'
     final artistaObj = pedido['artist'] as Map<String, dynamic>?;
     final String artistaNome =
         (artistaObj?['name'] ?? artistaObj?['username'] ?? 'Artista') as String;
@@ -367,7 +368,6 @@ class _CardPedido extends StatelessWidget {
               ),
             ],
           ),
-          
         ],
       ),
     );
