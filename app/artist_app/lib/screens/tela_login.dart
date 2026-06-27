@@ -6,6 +6,7 @@ import 'tela_principal.dart';
 import 'tela_cadastro.dart';
 import 'package:http/http.dart' as http;
 import 'userSection.dart';
+import '../service/event_service.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -62,6 +63,7 @@ class _TelaLoginState extends State<TelaLogin> {
     role:     dados['user']['role'],
     token:    dados['token'],
   );
+  EventService.instance.connect(UserSession.instance.id!);
 
   if (!mounted) return;
   Navigator.of(context).pushReplacement(

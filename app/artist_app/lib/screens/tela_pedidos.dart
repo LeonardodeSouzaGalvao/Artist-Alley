@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../core/app_cores.dart';
-import 'userSection.dart'; // ← adicionar import
+import 'userSection.dart';
+import '../service/event_service.dart';
+import 'dart:async';
 
 class TelaPedidos extends StatefulWidget {
   const TelaPedidos({super.key});
@@ -16,6 +18,7 @@ class _TelaPedidosState extends State<TelaPedidos>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final String _apiUrl = 'http://10.0.2.2:3000';
+  StreamSubscription? _eventoSub;
 
   List<dynamic> _todosPedidos = [];
   bool _carregando = true;
@@ -26,11 +29,27 @@ class _TelaPedidosState extends State<TelaPedidos>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _buscarPedidosDoCliente();
+    _escutarEventos();
+  }
+
+  void _escutarEventos() {
+    final userId = UserSession.instance.id;
+    if (userId == null) return;
+
+    _eventoSub = EventService.instance
+        .connect(userId)
+        .listen((evento) {
+          
+      if (evento['type'] == 'ORDER_UPDATE') {
+        _buscarPedidosDoCliente();
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _eventoSub?.cancel();
     super.dispose();
   }
 
