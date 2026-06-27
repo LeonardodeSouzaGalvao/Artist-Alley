@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 async function startServer() {
   try {
     await connectRabbitMQ();
-    //await startConsumers();
+    await startConsumers();
 
     app.listen(PORT, () => {
       console.log(`----- Server started on http://localhost:${PORT} -----`);

@@ -45,15 +45,9 @@ export async function createOrder(
       description: description ?? '',
       referenceImage: referenceImage ?? '',
       status: 'PENDING',
-      client: {
-        connect: { id: clientId },
-      },
-      artist: {
-        connect: { id: artistId },
-      },
-      commissionSlot: {
-        connect: { id: commissionSlotId },
-      },
+      client: { connect: { id: clientId } },
+      artist: { connect: { id: artistId } },
+      commissionSlot: { connect: { id: commissionSlotId } },
     },
   });
 
@@ -62,20 +56,31 @@ export async function createOrder(
 
   const queueOrders = await prisma.order.findMany({
     where: { commissionSlotId },
-    orderBy: [
-      { createdAt: 'asc' },
-      { id: 'asc' },
-    ],
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   });
-  const queuePosition = queueOrders.findIndex((queueOrder) => queueOrder.id === orderData.id) + 1;
+  const queuePosition = queueOrders.findIndex((q) => q.id === orderData.id) + 1;
   await eventService.publishCommissionOrderQueued(orderData, queuePosition, queueOrders.length);
 
   return orderData;
 }
 
+// Retorna apenas uma order (usado internamente)
 export async function findByArtistId(artistId: string) {
   const order = await prisma.order.findFirst({ where: { artistId } });
   return order ? toOrder(order) : null;
+}
+
+// ✅ NOVO: retorna todas as orders do artista com dados de cliente e commission
+export async function findAllByArtistId(artistId: string) {
+  const orders = await prisma.order.findMany({
+    where: { artistId },
+    include: {
+      client: true,
+      commissionSlot: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  return orders;
 }
 
 export async function findById(id: string) {
@@ -83,14 +88,10 @@ export async function findById(id: string) {
   return order ? toOrder(order) : null;
 }
 
-
 export async function findByClientId(clientId: string) {
-  const orders = await prisma.order.findMany({ 
+  const orders = await prisma.order.findMany({
     where: { clientId },
-    include: {
-      artist: true,
-      commissionSlot: true
-    }
+    include: { artist: true, commissionSlot: true },
   });
   return orders;
 }
@@ -102,9 +103,7 @@ export async function findByCommissionSlotId(commissionSlotId: string) {
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   const order = await prisma.order.findUnique({ where: { id } });
-  if (!order) {
-    throw new Error('Order not found');
-  }
+  if (!order) throw new Error('Order not found');
 
   const updatedOrder = await prisma.order.update({
     where: { id },
@@ -112,23 +111,19 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
   });
 
   await eventService.publishOrderStatusChanged(id, order.artistId, status);
-
   return updatedOrder;
 }
 
 export async function findCommissionQueueProjectionByCommissionSlotId(commissionSlotId: string) {
   const orders = await prisma.order.findMany({
     where: { commissionSlotId },
-    orderBy: [
-      { createdAt: 'asc' },
-      { id: 'asc' },
-    ],
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   });
 
-  return orders.map((order, index, allOrders): CommissionQueueItem => ({
+  return orders.map((order, index, all): CommissionQueueItem => ({
     ...toOrder(order),
     queuePosition: index + 1,
-    totalOrders: allOrders.length,
+    totalOrders: all.length,
   }));
 }
 
@@ -136,5 +131,3 @@ export async function deleteOrder(id: string) {
   const order = await prisma.order.delete({ where: { id } });
   return toOrder(order);
 }
-
-
