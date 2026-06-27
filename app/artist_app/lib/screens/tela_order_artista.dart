@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../core/app_cores.dart';
 import 'userSection.dart';
+import 'dart:async';
+import '../service/event_service.dart';
 
 class TelaOrdersArtista extends StatefulWidget {
   const TelaOrdersArtista({super.key});
@@ -16,6 +18,7 @@ class _TelaOrdersArtistaState extends State<TelaOrdersArtista>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final String _apiUrl = 'http://10.0.2.2:3000';
+  StreamSubscription? _eventoSub;
 
   List<dynamic> _todasOrders = [];
   bool _carregando = true;
@@ -26,11 +29,26 @@ class _TelaOrdersArtistaState extends State<TelaOrdersArtista>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _buscarOrders();
+    _escutarEventos();
+  }
+
+  void _escutarEventos() {
+    final artistId = UserSession.instance.id;
+    if (artistId == null) return;
+
+    _eventoSub = EventService.instance
+        .connect(artistId)
+        .listen((evento) {
+      if (evento['type'] == 'ORDER_UPDATE') {
+        _buscarOrders();
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _eventoSub?.cancel();
     super.dispose();
   }
 

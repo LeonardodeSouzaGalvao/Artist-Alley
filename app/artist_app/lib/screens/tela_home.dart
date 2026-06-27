@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../core/app_cores.dart';
 import 'userSection.dart';
 import 'tela_login.dart';
+import '../service/event_service.dart';
 
 class TelaHome extends StatefulWidget {
   const TelaHome({super.key});
@@ -73,6 +74,7 @@ class _TelaHomeState extends State<TelaHome> {
     if (confirmar != true) return;
 
     await UserSession.instance.clear();
+    EventService.instance.disconnect();
 
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
