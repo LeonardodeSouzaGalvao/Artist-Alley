@@ -1,6 +1,6 @@
 import { getChannel, ORDERS_QUEUE, COMMISSION_QUEUE } from './rabbitmq';
 import { CommissionEvent, OrderEvent } from '../types/events';
-import { notifyArtist } from '../middleware/sse';
+import { notifyArtist, notifyClient } from '../middleware/sse';
 
 export async function startConsumers() {
   try {
@@ -27,16 +27,19 @@ export async function startConsumers() {
           case 'ORDER_ACCEPTED':
             console.log(`----- Order aceita: ${event.orderId} -----`);
             notifyArtist(event.artistId, event);
+            notifyClient(event.clientId, event);
             break;
 
           case 'ORDER_REJECTED':
             console.log(`----- Order rejeitada: ${event.orderId} -----`);
             notifyArtist(event.artistId, event);
+            notifyClient(event.clientId, event);
             break;
 
           case 'ORDER_STATUS_CHANGED':
             console.log(`----- Status alterado: ${event.orderId} -> ${event.status} -----`);
             notifyArtist(event.artistId, event);
+            notifyClient(event.clientId, event);
             break;
         }
 
@@ -59,6 +62,7 @@ export async function startConsumers() {
         console.log(`----- Comissão ${event.commissionSlotId} recebeu a order ${event.orderId} -----`);
         console.log(`----- Posição na fila: ${event.queuePosition}/${event.totalOrders} -----`);
         notifyArtist(event.artistId, event);
+        notifyClient(event.clientId, event);
 
         channel.ack(msg);
       } catch (error) {

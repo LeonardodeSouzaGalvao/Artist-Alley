@@ -10,6 +10,12 @@ export function notifyArtist(artistId: string, payload: object) {
   conns.forEach(res => res.write(data));
 }
 
+export function notifyClient(clientId: string, payload: object) {
+  const conns = clients.get(clientId) ?? [];
+  const data = `data: ${JSON.stringify(payload)}\n\n`;
+  conns.forEach(res => res.write(data));
+}
+
 router.get('/stream/:userId', (req: Request, res: Response) => {
   const userId = req.params.userId as string;
 

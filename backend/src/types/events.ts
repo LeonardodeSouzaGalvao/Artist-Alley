@@ -12,6 +12,7 @@ export type OrderCreatedEvent = {
 export type OrderAcceptedEvent = {
   type: 'ORDER_ACCEPTED';
   orderId: string;
+  clientId: string;
   artistId: string;
   acceptedAt: Date;
 };
@@ -19,6 +20,7 @@ export type OrderAcceptedEvent = {
 export type OrderRejectedEvent = {
   type: 'ORDER_REJECTED';
   orderId: string;
+  clientId: string;
   artistId: string;
   rejectedAt: Date;
 };
@@ -26,6 +28,7 @@ export type OrderRejectedEvent = {
 export type OrderStatusChangedEvent = {
   type: 'ORDER_STATUS_CHANGED';
   orderId: string;
+  clientId: string;
   artistId: string;
   status: string;
   changedAt: Date;

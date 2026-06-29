@@ -13,26 +13,29 @@ export async function publishOrderCreated(order: Order) {
   });
 }
 
-export async function publishOrderAccepted(orderId: string, artistId: string) {
+export async function publishOrderAccepted(orderId: string, artistId: string, clientId: string) {
   await publishEvent('ORDER_ACCEPTED', {
     orderId,
     artistId,
+    clientId,
     acceptedAt: new Date(),
   });
 }
 
-export async function publishOrderRejected(orderId: string, artistId: string) {
+export async function publishOrderRejected(orderId: string, artistId: string, clientId: string) {
   await publishEvent('ORDER_REJECTED', {
     orderId,
     artistId,
+    clientId,
     rejectedAt: new Date(),
   });
 }
 
-export async function publishOrderStatusChanged(orderId: string, artistId: string, status: string) {
+export async function publishOrderStatusChanged(orderId: string, artistId: string, clientId: string, status: string) {
   await publishEvent('ORDER_STATUS_CHANGED', {
     orderId,
     artistId,
+    clientId,
     status,
     changedAt: new Date(),
   });

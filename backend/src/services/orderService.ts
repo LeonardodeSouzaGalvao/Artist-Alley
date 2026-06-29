@@ -110,7 +110,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
     data: { status },
   });
 
-  await eventService.publishOrderStatusChanged(id, order.artistId, status);
+  await eventService.publishOrderStatusChanged(id, order.artistId, order.clientId, status);
   return updatedOrder;
 }
 
